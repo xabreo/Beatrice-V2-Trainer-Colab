@@ -1,4 +1,3 @@
-# Beatrice-V2-Trainer-Colab
 # Beatrice V2 Simple Trainer
 
 ### A simple Google Colab wrapper for training Beatrice V2 voice models
