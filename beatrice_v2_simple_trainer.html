@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beatrice V2 Simple Trainer</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #222;
+    line-height: 1.45;
+  }
+
+  .app {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  h1, h2, h3, p { margin-top: 0; }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+
+  h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    margin-bottom: 22px;
+    color: #555;
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid #bbb;
+    margin-bottom: 22px;
+  }
+
+  .tab-button {
+    border: 1px solid #bbb;
+    border-bottom: none;
+    background: #f5f5f5;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .tab-button.active {
+    background: #fff;
+    font-weight: bold;
+    position: relative;
+    top: 1px;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .section {
+    border: 1px solid #ccc;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-weight: bold;
+    margin-bottom: 14px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+  }
+
+  .grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid #aaa;
+    padding: 9px;
+    background: #fff;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    margin-right: 7px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  button {
+    border: 1px solid #888;
+    background: #f2f2f2;
+    padding: 9px 14px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #e8e8e8;
+  }
+
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .primary {
+    font-weight: bold;
+  }
+
+  .status-box {
+    border: 1px solid #aaa;
+    padding: 12px;
+    background: #fafafa;
+    white-space: pre-wrap;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    min-height: 70px;
+  }
+
+  .progress {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #aaa;
+    background: #fff;
+    margin: 10px 0;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #ccc;
+    transition: width 0.2s linear;
+  }
+
+  .note {
+    border-left: 3px solid #888;
+    padding: 8px 12px;
+    margin: 10px 0;
+    background: #fafafa;
+    font-size: 13px;
+  }
+
+  .warning {
+    border: 1px solid #999;
+    padding: 10px;
+    margin-top: 10px;
+    background: #fafafa;
+    font-size: 13px;
+  }
+
+  .summary {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .summary th,
+  .summary td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .summary th {
+    width: 30%;
+    background: #f5f5f5;
+  }
+
+  .log {
+    height: 260px;
+    overflow: auto;
+    border: 1px solid #aaa;
+    padding: 10px;
+    background: #111;
+    color: #eee;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .metric {
+    border: 1px solid #ccc;
+    padding: 12px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  details {
+    border: 1px solid #ccc;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .small {
+    font-size: 12px;
+    color: #666;
+  }
+
+  .actions-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  @media (max-width: 800px) {
+    .grid,
+    .grid.three,
+    .metric-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field.full {
+      grid-column: auto;
+    }
+
+    .tabs {
+      border-bottom: none;
+    }
+
+    .tab-button {
+      border: 1px solid #bbb;
+    }
+  }
+
+  body { background: #f7f8fa; }
+  .app { max-width: 1240px; padding: 28px 22px 40px; }
+  h1 { font-size: 28px; letter-spacing: -0.3px; }
+  .subtitle { font-size: 15px; color: #555; max-width: 850px; }
+  .ownership-note {
+    border: 1px solid #cfd5dc;
+    background: #fff;
+    padding: 12px 14px;
+    margin: 0 0 22px;
+    font-size: 13px;
+  }
+  .tabs { gap: 6px; border-bottom: 0; }
+  .tab-button {
+    border: 1px solid #c9ced6;
+    border-radius: 8px;
+    background: #eef1f5;
+    padding: 11px 16px;
+    font-weight: 600;
+  }
+  .tab-button.active {
+    background: #fff;
+    border-color: #7d8794;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    top: 0;
+  }
+  .section {
+    border: 1px solid #d5dae1;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  }
+  .section-title { font-size: 15px; }
+  button { border-radius: 7px; }
+  button.primary { background: #222; color: #fff; border-color: #222; }
+  button.primary:hover { background: #111; }
+  .status-box { border-radius: 7px; }
+  .metric { border-radius: 8px; background: #fff; }
+  .progress { border-radius: 10px; overflow: hidden; }
+  .progress-bar { background: #555; }
+  .log { border-radius: 8px; }
+  code { font-family: Consolas, "Courier New", monospace; }
+
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <h1>Beatrice V2 Simple Trainer</h1>
+  <p class="subtitle">
+    A simple wrapper around the official Beatrice V2 training workflow.
+    Beatrice remains the underlying training engine.
+  </p>
+  <div class="ownership-note">
+    <strong>Upstream stays upstream.</strong>
+    This project provides a simpler user journey around the existing trainer.
+    It does not claim ownership of Beatrice or replace its training implementation.
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-button active" data-tab="environment" role="tab">1. Environment</button>
+    <button class="tab-button" data-tab="project" role="tab">2. Project &amp; Dataset</button>
+    <button class="tab-button" data-tab="normal" role="tab">3. Normal Settings</button>
+    <button class="tab-button" data-tab="pro" role="tab">4. Pro Settings</button>
+    <button class="tab-button" data-tab="training" role="tab">5. Training</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <section id="environment" class="tab-content active" role="tabpanel">
+    <h2>Environment</h2>
+
+    <div class="note">
+      Fresh-runtime workflow: prepare the required environment, restart Colab when package changes
+      require it, then verify the restarted runtime before moving to the project setup.
+    </div>
+
+    <div class="section">
+      <div class="section-title">Required environment</div>
+
+      <div class="grid three">
+        <div class="field">
+          <label for="torch-version">PyTorch</label>
+          <input id="torch-version" value="2.8.0" readonly>
+        </div>
+
+        <div class="field">
+          <label for="cuda-version">CUDA</label>
+          <input id="cuda-version" value="12.6" readonly>
+        </div>
+
+        <div class="field">
+          <label for="pyworld-version">PyWorld</label>
+          <input id="pyworld-version" value="0.3.4" readonly>
+        </div>
+      </div>
+
+      <div class="note">
+        The final Colab implementation should install/pin the versions required by the official
+        Beatrice environment rather than modifying the trainer itself.
+      </div>
+
+      <div class="button-row">
+        <button id="setup-environment" class="primary">Install / Prepare Environment</button>
+        <button id="restart-runtime">Restart Colab Runtime</button>
+        <button id="verify-environment">Verify Environment</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">GPU / CUDA verification</div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">GPU</div>
+          <div class="metric-value" id="env-gpu">Not checked</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">CUDA available</div>
+          <div class="metric-value" id="env-cuda">Not checked</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">PyTorch</div>
+          <div class="metric-value" id="env-torch">Not checked</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">PyWorld</div>
+          <div class="metric-value" id="env-pyworld">Not checked</div>
+        </div>
+      </div>
+
+      <div class="status-box" id="environment-status">Environment has not been initialized.</div>
+
+      <div class="note">
+        Recommended flow: install/pin the required packages → restart the Colab runtime when required
+        → verify the restarted runtime → mount Google Drive. The restart is specifically intended for
+        package changes such as replacing Colab's default PyTorch version.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Google Drive</div>
+
+      <div class="field">
+        <label for="drive-path">Required root folder</label>
+        <input id="drive-path" value="/content/drive/MyDrive/Beatrice" readonly>
+      </div>
+
+      <div class="button-row">
+        <button id="mount-drive">Mount Google Drive</button>
+        <button id="verify-drive">Verify /MyDrive/Beatrice</button>
+      </div>
+
+      <div class="status-box" id="drive-status">Google Drive has not been mounted.</div>
+    </div>
+
+    <div class="actions-bottom">
+      <span></span>
+      <button data-next="project">Next: Project &amp; Dataset →</button>
+    </div>
+  </section>
+
+  <!-- TAB 2 -->
+  <section id="project" class="tab-content" role="tabpanel">
+    <h2>Project &amp; Dataset</h2>
+
+    <div class="section">
+      <div class="section-title">Project selection</div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="project-folder">Training workspace</label>
+          <select id="project-folder">
+            <option value="">Auto-detect from Beatrice Drive</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="project-mode">Training mode</label>
+          <select id="project-mode">
+            <option value="auto">Auto detect</option>
+            <option value="fresh">Fresh training</option>
+            <option value="resume">Resume existing training</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="project-root">Project root</label>
+          <input id="project-root" value="/content/drive/MyDrive/Beatrice" readonly>
+          <div class="small">Create only <code>My Drive/Beatrice</code>. You may place <code>voices.zip</code> there or inside any project folder within it.</div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="scan-project" class="primary">Scan Project</button>
+        <button id="find-zip">Find Dataset ZIP</button>
+        <button id="scan-checkpoints">Scan Checkpoints</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dataset detection</div>
+
+      <table class="summary">
+        <tr>
+          <th>Dataset ZIP</th>
+          <td id="dataset-zip">Not detected</td>
+        </tr>
+        <tr>
+          <th>Dataset structure</th>
+          <td id="dataset-structure">Not detected</td>
+        </tr>
+        <tr>
+          <th>Language folder</th>
+          <td id="dataset-language">Not detected</td>
+        </tr>
+        <tr>
+          <th>Speakers</th>
+          <td id="dataset-speakers">Not detected</td>
+        </tr>
+        <tr>
+          <th>Speaker count</th>
+          <td id="dataset-speaker-count">Not detected</td>
+        </tr>
+      </table>
+
+      <div class="note">
+        The wrapper does not require a fixed language folder or speaker count; it discovers the
+        or identify speaker folders when the dataset uses a speaker-based structure.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Existing checkpoints</div>
+
+      <table class="summary">
+        <tr>
+          <th>Latest checkpoint</th>
+          <td id="latest-checkpoint">Not scanned</td>
+        </tr>
+        <tr>
+          <th>Historical checkpoints</th>
+          <td id="historical-checkpoints">Not scanned</td>
+        </tr>
+        <tr>
+          <th>paraphernalia folders</th>
+          <td id="paraphernalia-folders">Not scanned</td>
+        </tr>
+        <tr>
+          <th>Resume available</th>
+          <td id="resume-available">Not scanned</td>
+        </tr>
+      </table>
+
+      <div class="warning">
+        Checkpoint detection is informational until the Colab/Python backend is connected.
+        The wrapper must preserve historical numbered checkpoints and all
+        <code>paraphernalia_*</code> folders.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Project scan output</div>
+      <div class="status-box" id="project-status">Project has not been scanned.</div>
+    </div>
+
+    <div class="actions-bottom">
+      <button data-prev="environment">← Environment</button>
+      <button data-next="normal">Next: Normal Settings →</button>
+    </div>
+  </section>
+
+  <!-- TAB 3 -->
+  <section id="normal" class="tab-content" role="tabpanel">
+    <h2>Normal Settings</h2>
+
+    <div class="section">
+      <div class="section-title">Training settings</div>
+
+      <div class="grid three">
+        <div class="field">
+          <label for="steps">Training steps</label>
+          <input id="steps" type="number" min="1" step="1" value="10000">
+        </div>
+
+        <div class="field">
+          <label for="save-interval">Save interval</label>
+          <input id="save-interval" type="number" min="1" step="1" value="500">
+        </div>
+
+        <div class="field">
+          <label for="evaluation-interval">Evaluation interval</label>
+          <input id="evaluation-interval" type="number" min="1" step="1" value="1000">
+        </div>
+
+        <div class="field">
+          <label for="warmup-steps">Warmup steps</label>
+          <input id="warmup-steps" type="number" min="0" step="1" value="5000">
+        </div>
+
+        <div class="field">
+          <label for="batch-size">Batch size</label>
+          <input id="batch-size" type="number" min="1" step="1" value="12">
+        </div>
+
+        <div class="field">
+          <label for="workers">CPU workers (auto)</label>
+          <input id="workers" type="number" min="0" step="1" value="2">
+        </div>
+
+        <div class="field">
+          <label for="amp">AMP</label>
+          <select id="amp">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="note">
+        These are convenience controls for the corresponding official Beatrice configuration.
+        The backend should map them to the existing configuration fields without changing
+        trainer logic.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Checkpoint policy</div>
+
+      <div class="grid">
+        <div class="checkbox-row">
+          <label>
+            <input id="keep-paraphernalia" type="checkbox" checked>
+            Keep all paraphernalia_* folders
+          </label>
+        </div>
+
+        <div class="checkbox-row">
+          <label>
+            <input id="keep-history" type="checkbox" checked>
+            Keep historical numbered checkpoints
+          </label>
+        </div>
+
+        <div class="checkbox-row">
+          <label>
+            <input id="backup-latest" type="checkbox" checked>
+            Maintain one checkpoint_latest.pt.gz backup
+          </label>
+        </div>
+
+        <div class="checkbox-row">
+          <label>
+            <input id="drive-sync" type="checkbox" checked>
+            Copy new checkpoints to Drive project folder
+          </label>
+        </div>
+      </div>
+
+      <div class="note">
+        These policies belong to the external wrapper/watchdog. They do not replace or modify
+        Beatrice's own checkpoint implementation.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Configuration preview</div>
+      <textarea id="normal-preview" readonly></textarea>
+      <div class="button-row">
+        <button id="refresh-preview">Refresh Preview</button>
+      </div>
+    </div>
+
+    <div class="actions-bottom">
+      <button data-prev="project">← Project &amp; Dataset</button>
+      <button data-next="pro">Next: Pro Settings →</button>
+    </div>
+  </section>
+
+  <!-- TAB 4 -->
+  <section id="pro" class="tab-content" role="tabpanel">
+    <h2>Pro Settings</h2>
+
+    <div class="section">
+      <div class="section-title">Official Beatrice configuration</div>
+      <div class="note">
+        These fields correspond to the current Beatrice trainer configuration exposed by the
+        official trainer. The wrapper only edits configuration values; it does not modify the
+        Beatrice training engine.
+      </div>
+
+      <details open>
+        <summary>Learning</summary>
+        <div class="grid" style="margin-top:12px;">
+          <div class="field"><label for="pro-learning-rate-g">learning_rate_g</label><input id="pro-learning-rate-g" type="number" step="any" value="0.00005"></div>
+          <div class="field"><label for="pro-learning-rate-d">learning_rate_d</label><input id="pro-learning-rate-d" type="number" step="any" value="0.00005"></div>
+          <div class="field"><label for="pro-learning-rate-decay">learning_rate_decay</label><input id="pro-learning-rate-decay" type="number" step="any" value="0.999999"></div>
+          <div class="field"><label for="pro-adam-betas">adam_betas</label><input id="pro-adam-betas" value="[0.8, 0.99]"></div>
+          <div class="field"><label for="pro-adam-eps">adam_eps</label><input id="pro-adam-eps" type="number" step="any" value="0.000001"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Loss weights</summary>
+        <div class="grid" style="margin-top:12px;">
+          <div class="field"><label for="pro-grad-weight-loudness">grad_weight_loudness</label><input id="pro-grad-weight-loudness" type="number" step="any" value="1.0"></div>
+          <div class="field"><label for="pro-grad-weight-mel">grad_weight_mel</label><input id="pro-grad-weight-mel" type="number" step="any" value="50.0"></div>
+          <div class="field"><label for="pro-grad-weight-ap">grad_weight_ap</label><input id="pro-grad-weight-ap" type="number" step="any" value="100.0"></div>
+          <div class="field"><label for="pro-grad-weight-adv">grad_weight_adv</label><input id="pro-grad-weight-adv" type="number" step="any" value="150.0"></div>
+          <div class="field"><label for="pro-grad-weight-fm">grad_weight_fm</label><input id="pro-grad-weight-fm" type="number" step="any" value="150.0"></div>
+          <div class="field"><label for="pro-grad-balancer-ema">grad_balancer_ema_decay</label><input id="pro-grad-balancer-ema" type="number" step="any" value="0.995"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Audio / VQ</summary>
+        <div class="grid three" style="margin-top:12px;">
+          <div class="field"><label for="pro-in-sample-rate">in_sample_rate</label><input id="pro-in-sample-rate" type="number" value="16000" readonly></div>
+          <div class="field"><label for="pro-out-sample-rate">out_sample_rate</label><input id="pro-out-sample-rate" type="number" value="24000" readonly></div>
+          <div class="field"><label for="pro-wav-length">wav_length</label><input id="pro-wav-length" type="number" value="96000"></div>
+          <div class="field"><label for="pro-segment-length">segment_length</label><input id="pro-segment-length" type="number" value="100"></div>
+          <div class="field"><label for="pro-phone-noise-ratio">phone_noise_ratio</label><input id="pro-phone-noise-ratio" type="number" step="any" value="0.5"></div>
+          <div class="field"><label for="pro-vq-topk">vq_topk</label><input id="pro-vq-topk" type="number" value="4"></div>
+          <div class="field"><label for="pro-training-time-vq">training_time_vq</label><select id="pro-training-time-vq"><option value="none">none</option><option value="self">self</option><option value="random">random</option></select></div>
+          <div class="field"><label for="pro-floor-noise-level">floor_noise_level</label><input id="pro-floor-noise-level" type="number" step="any" value="0.001"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Augmentation</summary>
+        <div class="grid" style="margin-top:12px;">
+          <div class="field full"><label for="pro-augmentation-snr">augmentation_snr_candidates</label><input id="pro-augmentation-snr" value="[20.0, 25.0, 30.0, 35.0, 40.0, 45.0]"></div>
+          <div class="field"><label for="pro-formant-prob">augmentation_formant_shift_probability</label><input id="pro-formant-prob" type="number" step="any" value="0.5"></div>
+          <div class="field"><label for="pro-formant-min">augmentation_formant_shift_semitone_min</label><input id="pro-formant-min" type="number" step="any" value="-3.0"></div>
+          <div class="field"><label for="pro-formant-max">augmentation_formant_shift_semitone_max</label><input id="pro-formant-max" type="number" step="any" value="3.0"></div>
+          <div class="field"><label for="pro-reverb-prob">augmentation_reverb_probability</label><input id="pro-reverb-prob" type="number" step="any" value="0.5"></div>
+          <div class="field"><label for="pro-lpf-prob">augmentation_lpf_probability</label><input id="pro-lpf-prob" type="number" step="any" value="0.2"></div>
+          <div class="field full"><label for="pro-lpf-cutoff">augmentation_lpf_cutoff_freq_candidates</label><input id="pro-lpf-cutoff" value="[2000.0, 3000.0, 4000.0, 6000.0]"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Data / pretrained assets</summary>
+        <div class="grid">
+          <div class="field"><label for="pro-phone-extractor">phone_extractor_file</label><input id="pro-phone-extractor" value="assets/pretrained/122_checkpoint_03000000.pt"></div>
+          <div class="field"><label for="pro-pitch-estimator">pitch_estimator_file</label><input id="pro-pitch-estimator" value="assets/pretrained/104_3_checkpoint_00300000.pt"></div>
+          <div class="field"><label for="pro-ir-dir">in_ir_wav_dir</label><input id="pro-ir-dir" value="assets/ir"></div>
+          <div class="field"><label for="pro-noise-dir">in_noise_wav_dir</label><input id="pro-noise-dir" value="assets/noise"></div>
+          <div class="field"><label for="pro-test-dir">in_test_wav_dir</label><input id="pro-test-dir" value="assets/test"></div>
+          <div class="field full"><label for="pro-pretrained">pretrained_file</label><input id="pro-pretrained" value="assets/pretrained/151_checkpoint_libritts_r_200_02750000.pt.gz"></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Model / performance</summary>
+        <div class="grid three" style="margin-top:12px;">
+          <div class="field"><label for="pro-pitch-bins">pitch_bins</label><input id="pro-pitch-bins" type="number" value="448" readonly></div>
+          <div class="field"><label for="pro-hidden-channels">hidden_channels</label><input id="pro-hidden-channels" type="number" value="256"></div>
+          <div class="field"><label for="pro-use-amp">use_amp</label><select id="pro-use-amp"><option value="true">true</option><option value="false">false</option></select></div>
+          <div class="checkbox-row"><label><input id="pro-record-metrics" type="checkbox"> record_metrics</label></div>
+          <div class="checkbox-row"><label><input id="pro-san" type="checkbox"> san</label></div>
+          <div class="checkbox-row"><label><input id="pro-compile-convnext" type="checkbox"> compile_convnext</label></div>
+          <div class="checkbox-row"><label><input id="pro-compile-d4c" type="checkbox"> compile_d4c</label></div>
+          <div class="checkbox-row"><label><input id="pro-compile-discriminator" type="checkbox"> compile_discriminator</label></div>
+          <div class="checkbox-row"><label><input id="pro-profile" type="checkbox"> profile</label></div>
+        </div>
+        <div class="note">The official trainer marks <code>in_sample_rate</code>, <code>out_sample_rate</code> and <code>pitch_bins</code> as not changeable. <code>hidden_channels</code> and <code>san</code> also have restrictions for fine-tuning, so they are shown with those constraints in mind.</div>
+      </details>
+
+      <div class="button-row">
+        <button id="load-official-config">Load Official Config</button>
+        <button id="validate-pro">Validate Configuration</button>
+        <button id="reset-pro">Reset Pro Fields</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Configuration status</div>
+      <div class="status-box" id="pro-status">Official configuration has not been loaded.</div>
+    </div>
+
+    <div class="actions-bottom">
+      <button data-prev="normal">← Normal Settings</button>
+      <button data-next="training">Next: Training →</button>
+    </div>
+  </section>
+
+  <!-- TAB 5 -->
+  <section id="training" class="tab-content" role="tabpanel">
+    <h2>Start Training</h2>
+
+    <div class="section">
+      <div class="section-title">Pre-flight checklist</div>
+
+      <table class="summary">
+        <tr>
+          <th>Environment</th>
+          <td id="preflight-environment">Not ready</td>
+        </tr>
+        <tr>
+          <th>Project</th>
+          <td id="preflight-project">Not ready</td>
+        </tr>
+        <tr>
+          <th>Dataset</th>
+          <td id="preflight-dataset">Not ready</td>
+        </tr>
+        <tr>
+          <th>Configuration</th>
+          <td id="preflight-config">Not ready</td>
+        </tr>
+        <tr>
+          <th>Mode</th>
+          <td id="preflight-mode">Not selected</td>
+        </tr>
+      </table>
+
+      <div class="button-row">
+        <button id="run-preflight">Run Pre-flight Check</button>
+        <button id="import-trainer">Import Official Beatrice Trainer</button>
+        <button id="prepare-workspace">Prepare Local Workspace</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Training control</div>
+
+      <div class="grid three">
+        <div class="field">
+          <label>Target steps</label>
+          <input id="training-target" value="10000" readonly>
+        </div>
+
+        <div class="field">
+          <label>Save interval</label>
+          <input id="training-save" value="500" readonly>
+        </div>
+
+        <div class="field">
+          <label>Watchdog interval</label>
+          <input value="30 seconds" readonly>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="start-training" class="primary">Start Training</button>
+        <button id="stop-training">Stop Training</button>
+        <button id="final-backup">Run Final Backup</button>
+      </div>
+
+      <div class="warning">
+        Start Training is a UI action until connected to the Colab/Python execution
+        layer. The final implementation should launch the official trainer, not a rewritten trainer.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Training progress</div>
+
+      <div class="progress" aria-label="Training progress">
+        <div class="progress-bar" id="training-progress-bar"></div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">Status</div>
+          <div class="metric-value" id="training-status">Idle</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Current step</div>
+          <div class="metric-value" id="current-step">0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Elapsed</div>
+          <div class="metric-value" id="elapsed-time">00:00:00</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Last checkpoint</div>
+          <div class="metric-value" id="last-checkpoint">None</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Automatic checkpoint watchdog</div>
+
+      <table class="summary">
+        <tr>
+          <th>Watchdog</th>
+          <td id="watchdog-status">Stopped</td>
+        </tr>
+        <tr>
+          <th>Last scan</th>
+          <td id="watchdog-last-scan">Never</td>
+        </tr>
+        <tr>
+          <th>Latest checkpoint detected</th>
+          <td id="watchdog-latest">None</td>
+        </tr>
+        <tr>
+          <th>Historical checkpoints preserved</th>
+          <td id="watchdog-history">0</td>
+        </tr>
+        <tr>
+          <th>paraphernalia_* folders preserved</th>
+          <td id="watchdog-paraphernalia">0</td>
+        </tr>
+        <tr>
+          <th>Drive backup</th>
+          <td id="watchdog-drive">Not started</td>
+        </tr>
+      </table>
+
+      <div class="note">
+        The watchdog is external to Beatrice. Every 30 seconds it should inspect the workspace,
+        identify genuinely new checkpoints, synchronize them to the project folder, preserve
+        historical numbered checkpoints, preserve all paraphernalia_* folders, and maintain only
+        the appropriate checkpoint_latest.pt.gz backup.
+      </div>
+
+      <div class="button-row">
+        <button id="start-watchdog">Start 30-Second Watchdog</button>
+        <button id="stop-watchdog">Stop Watchdog</button>
+        <button id="sync-checkpoints">Sync Checkpoints Now</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Live GPU monitor</div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">GPU utilization</div>
+          <div class="metric-value" id="gpu-utilization">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">GPU memory</div>
+          <div class="metric-value" id="gpu-memory">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Temperature</div>
+          <div class="metric-value" id="gpu-temperature">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Power</div>
+          <div class="metric-value" id="gpu-power">--</div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="refresh-gpu">Refresh GPU Status</button>
+        <button id="start-gpu-monitor">Start 60-Second GPU Monitor</button>
+        <button id="stop-gpu-monitor">Stop Live Monitor</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Trainer output</div>
+      <div class="log" id="trainer-log">Waiting for trainer output...</div>
+
+      <div class="button-row">
+        <button id="clear-log">Clear Output</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Final backup</div>
+      <div class="status-box" id="final-backup-status">
+        Final backup has not been performed.
+      </div>
+    </div>
+
+    <div class="actions-bottom">
+      <button data-prev="pro">← Pro Settings</button>
+      <span></span>
+    </div>
+  </section>
+
+<div class="ownership-note" style="margin-top:18px;">
+  <strong>Credits:</strong> This wrapper is designed to make the existing Beatrice workflow easier to use.
+  The underlying Beatrice project remains the underlying training engine.
+</div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const tabs = document.querySelectorAll(".tab-button");
+  const contents = document.querySelectorAll(".tab-content");
+
+  function showTab(tabId) {
+    tabs.forEach(function (button) {
+      button.classList.toggle("active", button.dataset.tab === tabId);
+    });
+
+    contents.forEach(function (content) {
+      content.classList.toggle("active", content.id === tabId);
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  tabs.forEach(function (button) {
+    button.addEventListener("click", function () {
+      showTab(button.dataset.tab);
+    });
+  });
+
+  document.querySelectorAll("[data-next]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      showTab(button.dataset.next);
+    });
+  });
+
+  document.querySelectorAll("[data-prev]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      showTab(button.dataset.prev);
+    });
+  });
+
+  function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  }
+
+  function log(message) {
+    const element = document.getElementById("trainer-log");
+    const time = new Date().toLocaleTimeString();
+    if (element.textContent === "Waiting for trainer output...") {
+      element.textContent = "";
+    }
+    element.textContent += "[" + time + "] " + message + "\n";
+    element.scrollTop = element.scrollHeight;
+  }
+
+  // Colab kernel bridge. In standalone HTML, calls simply become no-ops.
+  function callPython(action, payload, callback) {
+    try {
+      if (window.google && google.colab && google.colab.kernel &&
+          typeof google.colab.kernel.invokeFunction === "function") {
+        google.colab.kernel.invokeFunction("beatrice_ui_action", [action, payload || {}], {})
+          .then(function (result) {
+            if (callback) callback(result && result.data ? result.data : result);
+          })
+          .catch(function (error) { log("Python bridge error: " + error); });
+        return true;
+      }
+    } catch (error) {
+      log("Python bridge unavailable: " + error);
+    }
+    return false;
+  }
+
+  function bridgePayload() {
+    const payload = {
+      project: document.getElementById("project-folder").value.trim(),
+      mode: document.getElementById("project-mode").value,
+      steps: Number(document.getElementById("steps").value),
+      save_interval: Number(document.getElementById("save-interval").value),
+      evaluation_interval: Number(document.getElementById("evaluation-interval").value),
+      warmup_steps: Number(document.getElementById("warmup-steps").value),
+      batch_size: Number(document.getElementById("batch-size").value),
+      num_workers: Number(document.getElementById("workers").value),
+      use_amp: document.getElementById("amp").value === "true",
+      checkpoint_history_to_keep: 3,
+      checkpoint_interval: 30,
+      nvidia_smi_interval: 60,
+      keep_paraphernalia: document.getElementById("keep-paraphernalia").checked,
+      keep_history: document.getElementById("keep-history").checked,
+      maintain_latest: document.getElementById("backup-latest").checked,
+      drive_sync: document.getElementById("drive-sync").checked
+    };
+    const pairs = {
+      learning_rate_g:"pro-learning-rate-g", learning_rate_d:"pro-learning-rate-d",
+      learning_rate_decay:"pro-learning-rate-decay", adam_betas:"pro-adam-betas",
+      adam_eps:"pro-adam-eps", grad_weight_loudness:"pro-grad-weight-loudness",
+      grad_weight_mel:"pro-grad-weight-mel", grad_weight_ap:"pro-grad-weight-ap",
+      grad_weight_adv:"pro-grad-weight-adv", grad_weight_fm:"pro-grad-weight-fm",
+      grad_balancer_ema_decay:"pro-grad-balancer-ema", wav_length:"pro-wav-length",
+      segment_length:"pro-segment-length", phone_noise_ratio:"pro-phone-noise-ratio",
+      vq_topk:"pro-vq-topk", floor_noise_level:"pro-floor-noise-level",
+      augmentation_snr_candidates:"pro-augmentation-snr",
+      augmentation_formant_shift_probability:"pro-formant-prob",
+      augmentation_formant_shift_semitone_min:"pro-formant-min",
+      augmentation_formant_shift_semitone_max:"pro-formant-max",
+      augmentation_reverb_probability:"pro-reverb-prob",
+      augmentation_lpf_probability:"pro-lpf-prob",
+      augmentation_lpf_cutoff_freq_candidates:"pro-lpf-cutoff",
+      phone_extractor_file:"pro-phone-extractor", pitch_estimator_file:"pro-pitch-estimator",
+      in_ir_wav_dir:"pro-ir-dir", in_noise_wav_dir:"pro-noise-dir", in_test_wav_dir:"pro-test-dir",
+      pretrained_file:"pro-pretrained", hidden_channels:"pro-hidden-channels"
+    };
+    Object.keys(pairs).forEach(function (key) {
+      const el = document.getElementById(pairs[key]);
+      if (el) payload[key] = el.value;
+    });
+    payload.training_time_vq = document.getElementById("pro-training-time-vq").value;
+    payload.record_metrics = document.getElementById("pro-record-metrics").checked;
+    payload.san = document.getElementById("pro-san").checked;
+    payload.compile_convnext = document.getElementById("pro-compile-convnext").checked;
+    payload.compile_d4c = document.getElementById("pro-compile-d4c").checked;
+    payload.compile_discriminator = document.getElementById("pro-compile-discriminator").checked;
+    payload.profile = document.getElementById("pro-profile").checked;
+    return payload;
+  }
+
+  function updateNormalPreview() {
+    const preview = {
+      trainingSteps: Number(document.getElementById("steps").value),
+      saveInterval: Number(document.getElementById("save-interval").value),
+      evaluationInterval: Number(document.getElementById("evaluation-interval").value),
+      warmupSteps: Number(document.getElementById("warmup-steps").value),
+      batchSize: Number(document.getElementById("batch-size").value),
+      workers: Number(document.getElementById("workers").value),
+      amp: document.getElementById("amp").value === "true",
+      checkpointPolicy: {
+        keepParaphernaliaFolders: document.getElementById("keep-paraphernalia").checked,
+        keepHistoricalCheckpoints: document.getElementById("keep-history").checked,
+        maintainLatestBackup: document.getElementById("backup-latest").checked,
+        copyNewCheckpointsToDrive: document.getElementById("drive-sync").checked
+      }
+    };
+
+    document.getElementById("normal-preview").value =
+      JSON.stringify(preview, null, 2);
+
+    setText("training-target", preview.trainingSteps);
+    setText("training-save", preview.saveInterval);
+    document.getElementById("training-target").value = preview.trainingSteps;
+    document.getElementById("training-save").value = preview.saveInterval;
+  }
+
+  function simulateEnvironmentStatus(message) {
+    setText("environment-status", message);
+  }
+
+  document.getElementById("setup-environment").addEventListener("click", function () {
+    simulateEnvironmentStatus(
+      "Environment preparation requested.\n\n" +
+      "The Colab/Python backend will install/pin:\n" +
+      "PyTorch 2.8.0 + CUDA 12.6\n" +
+      "PyWorld 0.3.4\n\n" +
+      "If the package change requires a runtime restart, " +
+      "use 'Restart Colab Runtime'. After the restart, verify the environment before continuing."
+    );
+    log("Environment setup requested.");
+    callPython("setup_environment", {}, function (r) { if (r && r.message) simulateEnvironmentStatus(r.message); });
+  });
+
+  document.getElementById("restart-runtime").addEventListener("click", function () {
+    const confirmed = window.confirm(
+      "Restart the Colab runtime now?\n\n" +
+      "The current runtime session will be restarted. After the restart, " +
+      "the environment verification step must run again."
+    );
+
+    if (!confirmed) {
+      log("Colab runtime restart cancelled.");
+      return;
+    }
+
+    simulateEnvironmentStatus(
+      "Colab runtime restart requested.\n\n" +
+      "After the runtime returns, run environment verification again before continuing."
+    );
+    log("Colab runtime restart requested.");
+    callPython("restart_runtime", {}, function (r) { if (r && r.message) simulateEnvironmentStatus(r.message); });
+  });
+
+  document.getElementById("verify-environment").addEventListener("click", function () {
+    setText("env-gpu", "Backend required");
+    setText("env-cuda", "Backend required");
+    setText("env-torch", "2.8.0 target");
+    setText("env-pyworld", "0.3.4 target");
+    simulateEnvironmentStatus(
+      "Verification request recorded.\n" +
+      "Actual CUDA/GPU verification will be performed by the Colab/Python backend."
+    );
+    log("Environment verification requested.");
+    callPython("verify_environment", {}, function (r) {
+      if (!r) return;
+      if (r.gpu) setText("env-gpu", r.gpu); if (r.cuda) setText("env-cuda", r.cuda);
+      if (r.torch) setText("env-torch", r.torch); if (r.pyworld) setText("env-pyworld", r.pyworld);
+      if (r.message) simulateEnvironmentStatus(r.message);
+    });
+  });
+
+  document.getElementById("mount-drive").addEventListener("click", function () {
+    setText("drive-status", "Drive mount requested.\nActual mount will be performed by Colab/Python.");
+    log("Google Drive mount requested.");
+    callPython("mount_drive", {}, function (r) { if (r && r.message) setText("drive-status", r.message); });
+  });
+
+  document.getElementById("verify-drive").addEventListener("click", function () {
+    setText("drive-status", "Drive verification requested.\nRequired path: /content/drive/MyDrive/Beatrice");
+    log("Drive project root verification requested.");
+    callPython("verify_drive", {}, function (r) { if (r && r.message) setText("drive-status", r.message); });
+  });
+
+  document.getElementById("scan-project").addEventListener("click", function () {
+    const project = document.getElementById("project-folder").value.trim();
+
+    if (!project) {
+      setText("project-status", "Enter a project subfolder before scanning.");
+      return;
+    }
+
+    setText(
+      "project-status",
+      "Project scan requested for:\n/content/drive/MyDrive/Beatrice/" + project +
+      "\n\nActual filesystem scanning will be performed by Colab/Python."
+    );
+
+    setText("preflight-project", "Selected: " + project);
+    log("Project scan requested: " + project);
+    callPython("scan_project", {project: project, mode: document.getElementById("project-mode").value}, function (r) {
+      if (!r) return;
+      if (r.project) setText("preflight-project", r.project);
+      if (r.dataset_zip) setText("dataset-zip", r.dataset_zip);
+      if (r.dataset_structure) setText("dataset-structure", r.dataset_structure);
+      if (r.dataset_language) setText("dataset-language", r.dataset_language);
+      if (r.speakers) setText("dataset-speakers", r.speakers);
+      if (r.speaker_count != null) setText("dataset-speaker-count", r.speaker_count);
+      if (r.latest_checkpoint) setText("latest-checkpoint", r.latest_checkpoint);
+      if (r.resume_available != null) setText("resume-available", r.resume_available ? "YES" : "NO");
+      if (r.message) setText("project-status", r.message);
+    });
+  });
+
+  document.getElementById("find-zip").addEventListener("click", function () {
+    setText("dataset-zip", "Automatic ZIP search requested.");
+    log("Automatic dataset ZIP search requested.");
+    callPython("find_zip", {project: document.getElementById("project-folder").value.trim()});
+  });
+
+  document.getElementById("scan-checkpoints").addEventListener("click", function () {
+    setText("latest-checkpoint", "Checkpoint scan requested.");
+    setText("historical-checkpoints", "Pending backend scan");
+    setText("paraphernalia-folders", "Pending backend scan");
+    setText("resume-available", "Pending backend scan");
+    log("Checkpoint scan requested.");
+    callPython("scan_checkpoints", {project: document.getElementById("project-folder").value.trim()});
+  });
+
+  [
+    "steps",
+    "save-interval",
+    "evaluation-interval",
+    "warmup-steps",
+    "batch-size",
+    "workers",
+    "amp",
+    "keep-paraphernalia",
+    "keep-history",
+    "backup-latest",
+    "drive-sync"
+  ].forEach(function (id) {
+    const element = document.getElementById(id);
+    element.addEventListener("input", updateNormalPreview);
+    element.addEventListener("change", updateNormalPreview);
+  });
+
+  document.getElementById("refresh-preview").addEventListener("click", function () {
+    updateNormalPreview();
+    log("Normal settings preview refreshed.");
+    callPython("save_normal_settings", bridgePayload());
+  });
+
+  document.getElementById("load-official-config").addEventListener("click", function () {
+    setText(
+      "pro-status",
+      "Official configuration load requested.\n" +
+      "The backend should read the upstream Beatrice configuration and populate these fields."
+    );
+    log("Official Beatrice configuration load requested.");
+    callPython("load_config", bridgePayload(), function (r) { if (r && r.message) setText("pro-status", r.message); });
+  });
+
+  document.getElementById("validate-pro").addEventListener("click", function () {
+    setText(
+      "pro-status",
+      "Configuration validation requested.\n" +
+      "Validation should be performed against the official Beatrice configuration/schema."
+    );
+    log("Pro configuration validation requested.");
+    callPython("validate_config", bridgePayload(), function (r) { if (r && r.message) setText("pro-status", r.message); });
+  });
+
+  document.getElementById("reset-pro").addEventListener("click", function () {
+    document.querySelectorAll("#pro input, #pro textarea").forEach(function (element) {
+      element.value = "";
+    });
+    setText("pro-status", "Pro fields reset.");
+    log("Pro fields reset.");
+    callPython("reset_config", {});
+  });
+
+  document.getElementById("run-preflight").addEventListener("click", function () {
+    setText("preflight-environment", "Backend verification required");
+    setText("preflight-project", document.getElementById("project-folder").value || "Not selected");
+    setText("preflight-dataset", "Backend verification required");
+    setText("preflight-config", "Configuration preview available");
+    setText("preflight-mode", document.getElementById("project-mode").value);
+    log("Pre-flight check requested.");
+    callPython("preflight", bridgePayload());
+  });
+
+  document.getElementById("import-trainer").addEventListener("click", function () {
+    log("Official Beatrice trainer import requested.");
+    setText("training-status", "Trainer import requested");
+    callPython("import_trainer", {}, function (r) { if (r && r.message) setText("training-status", r.message); });
+  });
+
+  document.getElementById("prepare-workspace").addEventListener("click", function () {
+    log("Local workspace preparation requested.");
+    setText("training-status", "Preparing workspace");
+    callPython("prepare_workspace", bridgePayload(), function (r) { if (r && r.message) setText("training-status", r.message); });
+  });
+
+  document.getElementById("start-training").addEventListener("click", function () {
+    log("Official Beatrice trainer start requested.");
+    setText("training-status", "Start requested");
+    callPython("start_training", bridgePayload(), function (r) { if (r && r.message) setText("training-status", r.message); });
+  });
+
+  document.getElementById("stop-training").addEventListener("click", function () {
+    log("Training stop requested.");
+    setText("training-status", "Stop requested");
+    callPython("stop_training", {}, function (r) { if (r && r.message) setText("training-status", r.message); });
+  });
+
+  document.getElementById("final-backup").addEventListener("click", function () {
+    setText(
+      "final-backup-status",
+      "Final backup requested.\n" +
+      "The backend should synchronize the latest valid checkpoint and preserve historical files."
+    );
+    log("Final checkpoint backup requested.");
+    callPython("final_backup", {}, function (r) { if (r && r.message) setText("final-backup-status", r.message); });
+  });
+
+  document.getElementById("start-watchdog").addEventListener("click", function () {
+    setText("watchdog-status", "Start requested");
+    log("30-second checkpoint watchdog start requested.");
+    callPython("start_watchdog", bridgePayload(), function (r) { if (r && r.message) setText("watchdog-status", r.message); });
+  });
+
+  document.getElementById("stop-watchdog").addEventListener("click", function () {
+    setText("watchdog-status", "Stop requested");
+    callPython("stop_watchdog", {}, function (r) { if (r && r.message) setText("watchdog-status", r.message); });
+  });
+
+  document.getElementById("sync-checkpoints").addEventListener("click", function () {
+    log("Immediate checkpoint synchronization requested.");
+    setText("watchdog-drive", "Synchronization requested");
+    callPython("sync_checkpoints", {}, function (r) { if (r && r.message) setText("watchdog-drive", r.message); });
+  });
+
+  let gpuTimer = null;
+
+  document.getElementById("refresh-gpu").addEventListener("click", function () {
+    log("GPU status refresh requested.");
+    setText("gpu-utilization", "Backend required");
+    setText("gpu-memory", "Backend required");
+    setText("gpu-temperature", "Backend required");
+    setText("gpu-power", "Backend required");
+    callPython("gpu_status", {}, function (r) {
+      if (!r) return;
+      if (r.utilization != null) setText("gpu-utilization", r.utilization);
+      if (r.memory != null) setText("gpu-memory", r.memory);
+      if (r.temperature != null) setText("gpu-temperature", r.temperature);
+      if (r.power != null) setText("gpu-power", r.power);
+    });
+  });
+
+  document.getElementById("start-gpu-monitor").addEventListener("click", function () {
+    if (gpuTimer) return;
+
+    log("Live GPU monitoring requested.");
+
+    gpuTimer = setInterval(function () {
+      log("GPU status refresh requested.");
+    }, 5000);
+  });
+
+  document.getElementById("stop-gpu-monitor").addEventListener("click", function () {
+    if (gpuTimer) {
+      clearInterval(gpuTimer);
+      gpuTimer = null;
+    }
+    log("Live GPU monitoring stopped.");
+  });
+
+  document.getElementById("clear-log").addEventListener("click", function () {
+    document.getElementById("trainer-log").textContent = "Waiting for trainer output...";
+  });
+
+  setInterval(function () {
+    callPython("training_status", {}, function (r) {
+      if (!r) return;
+      if (r.status) setText("training-status", r.status);
+      if (r.step != null) {
+        setText("current-step", r.step);
+        const target = Number(document.getElementById("training-target").value) || 0;
+        if (target > 0) document.getElementById("training-progress-bar").style.width = Math.min(100, (Number(r.step) / target) * 100) + "%";
+      }
+      if (r.elapsed) setText("elapsed-time", r.elapsed);
+      if (r.last_checkpoint) setText("last-checkpoint", r.last_checkpoint);
+      if (r.watchdog) setText("watchdog-status", r.watchdog);
+      if (r.watchdog_latest) setText("watchdog-latest", r.watchdog_latest);
+      if (r.watchdog_history != null) setText("watchdog-history", r.watchdog_history);
+      if (r.watchdog_paraphernalia != null) setText("watchdog-paraphernalia", r.watchdog_paraphernalia);
+    });
+  }, 3000);
+
+  updateNormalPreview();
+})();
+</script>
+</body>
+</html>
