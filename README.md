@@ -294,13 +294,16 @@ Users are responsible for ensuring that their training data, voices, recordings,
 
 ---
 
-# License
+# Repository License
 
-The license for this wrapper applies only to the original code contained in this repository.
+This repository currently does not include a separate open-source license.
 
-It does **not** replace or modify the licenses of Beatrice V2, its original training code, or third-party dependencies.
+The code in this repository is provided as a community-made convenience wrapper around the Beatrice V2 training workflow.
 
-Please refer to the respective upstream repositories for their licenses and terms.
+The Beatrice V2 trainer, its original code, models, and other third-party components are **not owned by this repository** and remain subject to their respective authors' licenses and terms.
+
+Please refer to the original Beatrice V2 repositories and the licenses of all third-party components before using, modifying, or redistributing them.
+
 
 ---
 
